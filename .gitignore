@@ -1,0 +1,13 @@
+# Personal
+.env
+*.code-workspace
+*.yaml
+
+# Data files
+*.json
+
+# Python files
+__pycache__
+
+# Config files
+config/
