@@ -66,7 +66,7 @@ See the [open issues](https://github.com/adam-mandelson/eai-scheduling/issues) f
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
+[issues-shield]: https://img.shields.io/github/issues/adam-mandelson/eai-scheduling.svg?style=for-the-badge
+[issues-url]: https://github.com/adam-mandelson/eai-scheduling/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/adam-mandelson
