@@ -4,6 +4,7 @@
 *.yaml
 
 # Data files
+data/
 *.json
 
 # Python files

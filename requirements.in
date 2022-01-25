@@ -1,4 +1,4 @@
-requests
-configparser
-pre-commit
+google-api-python-client
+google-auth-oauthlib
 pycodestyle
+requests
