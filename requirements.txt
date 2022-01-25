@@ -4,34 +4,24 @@
 #
 #    pip-compile
 #
-cachetools==4.2.4
+cachetools==5.0.0
     # via google-auth
 certifi==2021.10.8
     # via requests
-cfgv==3.3.1
-    # via pre-commit
 charset-normalizer==2.0.10
     # via requests
-configparser==5.2.0
-    # via -r requirements.in
-distlib==0.3.4
-    # via virtualenv
-filelock==3.4.2
-    # via virtualenv
-google-api-core==2.3.2
+google-api-core==2.4.0
     # via google-api-python-client
-google-api-python-client==2.34.0
+google-api-python-client==2.36.0
     # via -r requirements.in
-google-auth==2.3.3
+google-auth==2.4.1
     # via
     #   google-api-core
     #   google-api-python-client
     #   google-auth-httplib2
     #   google-auth-oauthlib
 google-auth-httplib2==0.1.0
-    # via
-    #   -r requirements.in
-    #   google-api-python-client
+    # via google-api-python-client
 google-auth-oauthlib==0.4.6
     # via -r requirements.in
 googleapis-common-protos==1.54.0
@@ -40,18 +30,10 @@ httplib2==0.20.2
     # via
     #   google-api-python-client
     #   google-auth-httplib2
-identify==2.4.3
-    # via pre-commit
 idna==3.3
     # via requests
-nodeenv==1.6.0
-    # via pre-commit
 oauthlib==3.1.1
     # via requests-oauthlib
-platformdirs==2.4.1
-    # via virtualenv
-pre-commit==2.16.0
-    # via -r requirements.in
 protobuf==3.19.3
     # via
     #   google-api-core
@@ -64,10 +46,8 @@ pyasn1-modules==0.2.8
     # via google-auth
 pycodestyle==2.8.0
     # via -r requirements.in
-pyparsing==3.0.6
+pyparsing==3.0.7
     # via httplib2
-pyyaml==6.0
-    # via pre-commit
 requests==2.27.1
     # via
     #   -r requirements.in
@@ -81,15 +61,10 @@ six==1.16.0
     # via
     #   google-auth
     #   google-auth-httplib2
-    #   virtualenv
-toml==0.10.2
-    # via pre-commit
 uritemplate==4.1.1
     # via google-api-python-client
 urllib3==1.26.8
     # via requests
-virtualenv==20.13.0
-    # via pre-commit
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
