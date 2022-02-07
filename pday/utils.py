@@ -1,3 +1,23 @@
+import pandas as pd
+from pathlib import Path
+import os
+
+
+def auth_dir() -> Path:
+    '''
+    Returns a Path object with the location of the config folder.
+    '''
+    return Path('config/')
+
+
+def data_dir() -> Path:
+    '''
+    Returns a Path object with the location of the data folder.
+    Makes a new one if it doesn't exist.
+    '''
+    if not os.path.exists('./data/'):
+        os.makedirs('./data/')
+    return Path('data/')
 
 
 def json_to_listview(json_data, keys):
