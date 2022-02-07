@@ -26,3 +26,11 @@ Data needed:
             - Count shifts
         - Shifts WFH:
             - Filter by all_shifts.comment = 'WFH'
+
+    - Absences?
+
+Filter by dates
+Export to file or google sheets
+Run update_all and reports weekly
+Deployment
+Update document process
