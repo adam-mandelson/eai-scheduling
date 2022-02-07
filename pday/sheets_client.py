@@ -80,7 +80,7 @@ class SheetsClient(object):
             },
             valueInputOption="USER_ENTERED"
         ).execute()
-        print(f'Added record to logs at {value_[0][1]}')
+        print(f'\nAdded record to logs at {value_[0][1]}')
 
     def append(self, range: str, values) -> None:
         '''
