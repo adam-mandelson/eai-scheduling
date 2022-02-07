@@ -32,8 +32,12 @@ httplib2==0.20.2
     #   google-auth-httplib2
 idna==3.3
     # via requests
+numpy==1.22.2
+    # via pandas
 oauthlib==3.1.1
     # via requests-oauthlib
+pandas==1.4.0
+    # via -r requirements.in
 protobuf==3.19.3
     # via
     #   google-api-core
@@ -48,6 +52,10 @@ pycodestyle==2.8.0
     # via -r requirements.in
 pyparsing==3.0.7
     # via httplib2
+python-dateutil==2.8.2
+    # via pandas
+pytz==2021.3
+    # via pandas
 requests==2.27.1
     # via
     #   -r requirements.in
@@ -61,6 +69,7 @@ six==1.16.0
     # via
     #   google-auth
     #   google-auth-httplib2
+    #   python-dateutil
 uritemplate==4.1.1
     # via google-api-python-client
 urllib3==1.26.8
