@@ -5,8 +5,8 @@ and create a session to access data.
 
 
 import json
-from json import JSONDecodeError
 from pathlib import Path
+from typing import List
 
 from requests import Response, Session
 
@@ -89,6 +89,26 @@ class PlandayQuery(object):
             self._authenticate()
 
         return response
+
+    def post_response(self, url: str, params=None) -> Response:
+        post_headers = self._access_headers
+        post_headers['Content-Type'] = 'application/json'
+        response = self._session.post(
+            url,
+            headers=post_headers,
+            data=params
+        )
+
+        status_code = response.status_code
+        if status_code in [400, 401]:
+            self._authenticate()
+
+        return response
+
+    def post(self, url: str, params: List = None):
+        response = self.post_response(url, params=json.dumps(params))
+        raw_response_data = response.json()['data']
+        return raw_response_data
 
     def query(self, url: str, limit=0):
         response = self.get_response(url, params={'Limit': limit})
@@ -184,11 +204,25 @@ class PlandayQuery(object):
         Retrieve account types
 
         :rtype: list:
-        :return: list of account types
+        :return: list of absence requests
         '''
         return sorted(
             self.query(
                 'https://openapi.planday.com/absence/v1/absencerequests'
+            ),
+            key=lambda x: x.get("id")
+        )
+
+    def get_absence_accounts(self):
+        '''
+        Retrieve absence accounts
+
+        :rtype: list:
+        :return: list of absence accounts
+        '''
+        return sorted(
+            self.query(
+                'https://openapi.planday.com/absence/v1/accounts'
             ),
             key=lambda x: x.get("id")
         )
