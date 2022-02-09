@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import json
 import os
@@ -40,10 +42,9 @@ def load_df():
 if __name__ == '__main__':
     args = parse_args()
     query_obj = ReportsQuery(df_dict=load_df())
-
-    # query_obj = ReportsQuery(datestring=args.input_date)
-    # reports_df = query_obj.export_data()
+    # Get monthly report
     monthly_report = query_obj.monthly_report()
+    # For each name, export to individual csv and full staff csv
     for name in monthly_report.keys():
         file_path = name.replace(' ', '_').lower() + '.csv'
         df = monthly_report[name].iloc[1:, :]
