@@ -13,11 +13,22 @@ from pday.query import PlandayQuery
 from pday.sheets_client import SheetsClient
 from pday.utils import auth_dir, data_dir
 
-
 # Instantiate PlandayQuery and Google Sheets objects
 planday_obj = PlandayQuery(auth_dir=auth_dir())
 google_client = SheetsClient(auth_dir=auth_dir())
 data_obj = Data()
+
+# Get absence accounts
+data_obj.save_to_json(
+    planday_query=planday_obj.get_absence_accounts,
+    data_dir=data_dir(),
+    title='absence_accounts.json'
+)
+data_obj.save_to_sheets(
+    planday_query=planday_obj.get_absence_accounts,
+    google_client=google_client,
+    sheet_name='absence_accounts'
+)
 
 # Get absence requests
 absence_query = planday_obj.get_absence_requests
