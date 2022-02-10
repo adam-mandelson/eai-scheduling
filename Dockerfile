@@ -10,4 +10,4 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-CMD [ "python3", "-m", "get_reports", "2022 02"]
+CMD [ "python3", "-m", "get_reports"]
