@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 from typing import Dict
 
+import numpy as np
 import pandas as pd
 
 
@@ -22,6 +23,7 @@ class ReportsQuery(object):
         self._clean_all_shifts(df=df_dict['all_shifts'])
         self._clean_employees_list(df=df_dict['employees_list'])
         self._clean_shift_types(df=df_dict['shift_types'])
+        self._clean_leave_accounts(df=df_dict['leave_accounts'])
         self._merge_datasets()
         if employeeName:
             self._employeeName = employeeName
@@ -57,6 +59,15 @@ class ReportsQuery(object):
         self._shift_types = df.rename(columns={
             'id': 'shiftTypeId', 'name': 'shiftTypeName'
         })[df['isActive'] == True]
+
+    def _clean_leave_accounts(self, df: pd.DataFrame) -> None:
+        try:
+            df['employeeName'] = df['First name'] + ' ' + df['Last name']
+        except KeyError:
+            pass
+        self._leave_accounts = df.rename(columns={
+            'Balance at period start': 'balance'
+            })
 
     def _merge_datasets(self) -> None:
         shifts_df = self._all_shifts
@@ -220,6 +231,28 @@ class ReportsQuery(object):
         self.get_shifts_wfh(df=df)
         return self._report_df
 
+    def _get_ytd_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        prev_month = dt.strftime(dt.now() - pd.DateOffset(months=1), '%B')
+        df = df.loc[:, 'January':prev_month]
+        df.loc[1:, ('ytd')] = df.loc[
+            ~df.index.isin(['employeeName']), :].sum(axis=1)
+        name_mask = self._leave_accounts['employeeName'] == df.loc[
+            'employeeName', 'January'
+            ]
+        df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc[
+            'hours_contracted', ~df.columns.isin(['ytd'])
+            ].sum()
+        df.loc[:, ('under/over')] = df.loc[
+            'hours_worked':'hours_counted', 'ytd'
+            ] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
+        df.loc['annual_leave', 'full_year_contracted'] = self._leave_accounts.loc[name_mask, 'balance'].values[0]
+        work_days = (52*5) - 12 - df.loc['annual_leave', 'full_year_contracted']
+        work_hours = work_days * 8
+        df.loc['sick_leave', 'full_year_contracted'] = 10
+        df.loc['shifts_worked':'shifts_counted', 'full_year_contracted'] = work_days
+        df.loc['hours_worked':'hours_counted', 'full_year_contracted'] = work_hours
+        return df.iloc[:, -4:]
+
     def _filter_monthly(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df[
             (df['date'] >= self._date_filters[0]) &
@@ -229,8 +262,6 @@ class ReportsQuery(object):
 
     def monthly_report(self):
         names_list = self._report_df['employeeName'].values.tolist()
-        # df = df.set_index(df['employeeName'], drop=True)
-        # .drop(columns=['employeeName']).T
         df_dict = {}
         for name in names_list:
             print(f'\n+++ Working on {name}\'s report +++')
@@ -241,11 +272,12 @@ class ReportsQuery(object):
                 'August', 'September', 'October', 'November', 'December'
                 ])
             for month in employee_df.columns.tolist():
-                # Each month of the year
                 start = dt.strptime(str(dt.now().year) + ' ' + month, '%Y %B')
                 end = start + pd.DateOffset(months=1)
+                busdays = np.busday_count(dt.strftime(start, '%Y-%m'), (dt.strftime(end, '%Y-%m')))
                 self._date_filters = [start, end]
                 month_df = self._filter_monthly(df=df)
+                month_df['hours_contracted'] = busdays * 8
                 try:
                     employee_df[month] = month_df.T
                 except ValueError:
@@ -254,7 +286,9 @@ class ReportsQuery(object):
                     print(f'{name.split()[0]}\'s report for the month of '
                           f'{month} is empty. Please check.')
                     pass
-            employee_df['ytd'] = employee_df.sum(axis=1)
+            employee_df.fillna(0, inplace=True)
+            ytd_df = self._get_ytd_data(employee_df)
+            employee_df = employee_df.join(ytd_df)
             df_dict[name] = employee_df
             df_dict[name].fillna(0, inplace=True)
         return df_dict
