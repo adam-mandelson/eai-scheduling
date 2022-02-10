@@ -2,6 +2,7 @@
 .env
 *.code-workspace
 *.yaml
+*.txt
 
 # Data files
 data/
