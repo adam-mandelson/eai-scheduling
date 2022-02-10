@@ -60,12 +60,14 @@ class ReportsQuery(object):
             'id': 'shiftTypeId', 'name': 'shiftTypeName'
         })[df['isActive'] == True]
 
-    def _clean_leave_accounts(self, df:pd.DataFrame) -> None:
+    def _clean_leave_accounts(self, df: pd.DataFrame) -> None:
         try:
             df['employeeName'] = df['First name'] + ' ' + df['Last name']
         except KeyError:
             pass
-        self._leave_accounts = df.rename(columns={'Balance at period start': 'balance'})
+        self._leave_accounts = df.rename(columns={
+            'Balance at period start': 'balance'
+            })
 
     def _merge_datasets(self) -> None:
         shifts_df = self._all_shifts
@@ -232,10 +234,17 @@ class ReportsQuery(object):
     def _get_ytd_data(self, df: pd.DataFrame) -> pd.DataFrame:
         prev_month = dt.strftime(dt.now() - pd.DateOffset(months=1), '%B')
         df = df.loc[:, 'January':prev_month]
-        df.loc[1:, ('ytd')] = df.loc[~df.index.isin(['employeeName']), :].sum(axis=1)
-        name_mask = self._leave_accounts['employeeName'] == df.loc['employeeName', 'January']
-        df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc['hours_contracted', ~df.columns.isin(['ytd'])].sum()
-        df.loc[:, ('under/over')] = df.loc['hours_worked':'hours_counted', 'ytd'] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
+        df.loc[1:, ('ytd')] = df.loc[
+            ~df.index.isin(['employeeName']), :].sum(axis=1)
+        name_mask = self._leave_accounts['employeeName'] == df.loc[
+            'employeeName', 'January'
+            ]
+        df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc[
+            'hours_contracted', ~df.columns.isin(['ytd'])
+            ].sum()
+        df.loc[:, ('under/over')] = df.loc[
+            'hours_worked':'hours_counted', 'ytd'
+            ] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
         df.loc['annual_leave', 'full_year_contracted'] = self._leave_accounts.loc[name_mask, 'balance'].values[0]
         work_days = (52*5) - 12 - df.loc['annual_leave', 'full_year_contracted']
         work_hours = work_days * 8
@@ -262,14 +271,7 @@ class ReportsQuery(object):
                 'January', 'February', 'March', 'April', 'May', 'June', 'July',
                 'August', 'September', 'October', 'November', 'December'
                 ])
-            # holiday_months = ['January', 'February', 'April', 'May', 'July', 'September', 'October', 'November', 'December']
             for month in employee_df.columns.tolist():
-                # Each month of the year
-                # Defaults to current year
-                # if month in holiday_months:
-                #     busdays = -1
-                # else:
-                #     busdays = 0
                 start = dt.strptime(str(dt.now().year) + ' ' + month, '%Y %B')
                 end = start + pd.DateOffset(months=1)
                 busdays = np.busday_count(dt.strftime(start, '%Y-%m'), (dt.strftime(end, '%Y-%m')))
