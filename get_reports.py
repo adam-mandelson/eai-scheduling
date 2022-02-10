@@ -31,10 +31,15 @@ def load_df():
     df_dict = {}
     for file in os.listdir(DATA_PATH):
         file_path = DATA_PATH / file
-        with open(file_path) as f:
-            json_struct = json.load(f)
-        df = pd.json_normalize(json_struct)
-        df_name = file[:-5]
+        try:
+            with open(file_path) as f:
+                json_struct = json.load(f)
+                df = pd.json_normalize(json_struct)
+                df_name = file[:-5]
+        except json.JSONDecodeError:
+            with open(file_path) as f:
+                df = pd.read_csv(f)
+                df_name = file[:-4]
         df_dict[df_name] = df
     return df_dict
 
