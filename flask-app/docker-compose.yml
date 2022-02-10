@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  frontend:
+    image: adam/eai-scheduling:flask
+    build: .
+    ports:
+      - "8000:5000"
+    volumes:
+      - .:/code
+    environment:
+      FLASK_ENV: development

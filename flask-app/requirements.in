@@ -3,4 +3,5 @@ google-api-python-client
 google-auth-oauthlib
 pandas
 pycodestyle
+redis
 requests
