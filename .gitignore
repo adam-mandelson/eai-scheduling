@@ -3,6 +3,7 @@
 *.code-workspace
 *.yaml
 *.txt
+.vscode/
 
 # Data files
 data/
