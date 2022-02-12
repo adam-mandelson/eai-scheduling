@@ -1,7 +1,7 @@
+connexion[swagger-ui]
 flask
 google-api-python-client
 google-auth-oauthlib
 pandas
 pycodestyle
-redis
 requests

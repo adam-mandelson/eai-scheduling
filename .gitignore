@@ -8,6 +8,7 @@
 # Data files
 data/
 *.json
+*.pkl
 
 # Python files
 __pycache__
