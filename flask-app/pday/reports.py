@@ -1,29 +1,51 @@
+from configparser import NoSectionError
 from datetime import datetime as dt
 from typing import Dict
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from pday.utils import data_dir, reports_dir, auth_dir
+import argparse
+from pday.update import PlandayUpdate
+
+from pday.query import PlandayQuery
+from pday.data import Data
+
+DATA_PATH = data_dir()
+REPORTS_DIR = reports_dir()
+
+planday_obj = PlandayQuery(auth_dir=auth_dir())
+data_obj = Data()
+update_obj = PlandayUpdate(planday_obj=planday_obj, data_obj=data_obj, data_dir=DATA_PATH)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='This module generates monthly reports, '
+                    'or an entire yearly report.',
+        epilog='Outputs a python dictionary at the moment.')
+    current_year_month = dt.strftime(dt.today(), '%Y %m')
+    parser.add_argument('-id', '--input_date', type=str,
+                        nargs='?',
+                        help='the date to produce the report '
+                        'for. please enter as "YYYY mm".')
+    return parser.parse_args()
 
 
 class ReportsQuery(object):
 
-    def __init__(self, df_dict: Dict, datestring: str = None,
-                 employeeName: str = None) -> None:
-        if datestring:
-            filter_start = dt.strptime(datestring, '%Y %m')
-            self._date_filters = [
-                filter_start,
-                filter_start + pd.DateOffset(months=1)
-            ]
-        else:
-            self._date_filters = [
-                dt.strptime('2022', '%Y'),
-                dt.strptime('2023', '%Y')
-            ]
-        self._clean_all_shifts(df=df_dict['all_shifts'])
-        self._clean_employees_list(df=df_dict['employees_list'])
-        self._clean_shift_types(df=df_dict['shift_types'])
-        self._clean_leave_accounts(df=df_dict['leave_accounts'])
+    def __init__(self, reports_dir: Path = None, datestring: str = None, employeeName: str = None) -> None:
+        self._reports_dir = reports_dir
+        self._check_datestring(datestring)
+        _df_all_shifts = update_obj.get_all_shifts()
+        _df_employees_list = update_obj.get_employees()
+        _df_shift_types = update_obj.get_shift_types()
+        _df_leave_accounts = update_obj.get_leave_accounts()
+        self._clean_all_shifts(df=_df_all_shifts)
+        self._clean_employees_list(df=_df_employees_list)
+        self._clean_shift_types(df=_df_shift_types)
+        self._clean_leave_accounts(df=_df_leave_accounts)
         self._merge_datasets()
         if employeeName:
             self._employeeName = employeeName
@@ -33,6 +55,19 @@ class ReportsQuery(object):
         else:
             self._employeeName = None
         self._report_df = pd.DataFrame(self._employees_list['employeeName'])
+
+    def _check_datestring(self, date_str: str = None) -> None:
+        if date_str:
+            filter_start = dt.strptime(date_str, '%Y %m')
+            self._date_filters = [
+                filter_start,
+                filter_start + pd.DateOffset(months=1)
+            ]
+        else:
+            self._date_filters = [
+                dt.strptime('2022', '%Y'),
+                dt.strptime('2023', '%Y')
+            ]
 
     def _clean_all_shifts(self, df: pd.DataFrame) -> None:
         if df['date'].dtypes.name != 'datetime64[ns]':
@@ -260,9 +295,19 @@ class ReportsQuery(object):
             ]
         return self.export_data(df)
 
-    def monthly_report(self):
+    def _multindex(self, df: pd.DataFrame) -> pd.DataFrame:
+        name = pd.Series(df.loc['employeeName', 'January']).repeat(7).reset_index(drop=True)
+        old_idx = df.index.values[1:-1]
+        tuples = list(zip(name, old_idx))
+        idx = pd.MultiIndex.from_tuples(tuples, names=['employeeName', 'data_types'])
+        df = df.iloc[1:-1, :]
+        df.set_index(idx, inplace=True)
+        return df
+
+    def get_monthly_report(self, only_full_report=False, no_save=False) -> Dict:
         names_list = self._report_df['employeeName'].values.tolist()
         df_dict = {}
+        full_df = pd.DataFrame()
         for name in names_list:
             print(f'\n+++ Working on {name}\'s report +++')
             df = self._merged_dataset
@@ -289,6 +334,44 @@ class ReportsQuery(object):
             employee_df.fillna(0, inplace=True)
             ytd_df = self._get_ytd_data(employee_df)
             employee_df = employee_df.join(ytd_df)
-            df_dict[name] = employee_df
+            # Add index level
+            employee_df = self._multindex(employee_df)
+            full_df = pd.concat([full_df, employee_df])
+            df_dict[name] = employee_df.iloc[:-1, :]
             df_dict[name].fillna(0, inplace=True)
+        if only_full_report & no_save:
+            return full_df
+        self._monthly_dict = df_dict
+        if only_full_report:
+            if no_save:
+                return self._save_full_report(no_save=no_save)
+        else:
+            for name in df_dict.keys():
+                self._save_indiv_report(name)
+            self._save_full_report(no_save=no_save)
         return df_dict
+
+    def _save_indiv_report(self, name: str) -> None:
+        file_path = name.replace(' ', '_').lower() + '.csv'
+        df = self._monthly_dict[name].iloc[1:, :]
+        with open(self._reports_dir / file_path) as f:
+            df.to_csv(f, line_terminator='\n')
+
+    def _save_full_report(self, no_save=False):
+        if no_save:
+            df_dict = self._monthly_dict
+            df = pd.DataFrame(columns=df_dict['Adam Mandelson'].columns)
+            for name in df_dict.keys():
+                df = df.append(df_dict[name])
+            return df
+        else:
+            with open(self._reports_dir / 'full_report.csv', 'w') as f:
+                df.to_csv(f, line_terminator='\n')
+            return df
+
+
+if __name__ == '__main__':
+    args = parse_args()
+    query_obj = ReportsQuery(reports_dir=REPORTS_DIR)
+    # Get monthly report for all employees
+    query_obj.monthly_report(only_full_report=True)

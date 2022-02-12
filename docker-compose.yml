@@ -2,11 +2,11 @@ version: "3.9"
 
 services:
   frontend:
-    image: adam/eai-scheduling:flask
+    image: adam/eai-scheduling:flask-api-dev
     build: .
     ports:
       - "8000:5000"
     volumes:
-      - .:/code
+      - ./flask-app:/opt/flask-app
     environment:
       FLASK_ENV: development
