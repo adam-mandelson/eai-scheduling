@@ -1,5 +1,4 @@
-connexion[swagger-ui]
-flask
+django
 google-api-python-client
 google-auth-oauthlib
 pandas

@@ -8,10 +8,10 @@ on the relevant Google Sheet.
 '''
 
 
-from pday.data import Data
-from pday.query import PlandayQuery
-from pday.sheets_client import SheetsClient
-from pday.utils import auth_dir, data_dir
+from data import Data
+from query import PlandayQuery
+from sheets_client import SheetsClient
+from utils import auth_dir, data_dir
 import pandas as pd
 from pathlib import Path
 import json

@@ -3,7 +3,10 @@
 *.code-workspace
 *.yaml
 *.txt
+!requirements.txt
 .vscode/
+*.md
+!README.md
 
 # Data files
 data/

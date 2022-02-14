@@ -16,7 +16,7 @@ def data_dir() -> Path:
     '''
     if not os.path.exists('./data/'):
         os.makedirs('./data/')
-    return Path('data/')
+    return Path('./data/')
 
 
 def reports_dir() -> Path:

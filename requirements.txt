@@ -4,31 +4,21 @@
 #
 #    pip-compile
 #
-attrs==21.4.0
-    # via jsonschema
+asgiref==3.5.0
+    # via django
 cachetools==5.0.0
     # via google-auth
 certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.10
+charset-normalizer==2.0.12
     # via requests
-click==8.0.3
-    # via
-    #   clickclick
-    #   flask
-clickclick==20.10.2
-    # via connexion
-connexion[swagger-ui]==2.11.1
+django==4.0.2
     # via -r requirements.in
-flask==2.0.2
-    # via
-    #   -r requirements.in
-    #   connexion
-google-api-core==2.4.0
+google-api-core==2.5.0
     # via google-api-python-client
-google-api-python-client==2.36.0
+google-api-python-client==2.37.0
     # via -r requirements.in
-google-auth==2.4.1
+google-auth==2.6.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -40,40 +30,19 @@ google-auth-oauthlib==0.4.6
     # via -r requirements.in
 googleapis-common-protos==1.54.0
     # via google-api-core
-httplib2==0.20.2
+httplib2==0.20.4
     # via
     #   google-api-python-client
     #   google-auth-httplib2
 idna==3.3
     # via requests
-inflection==0.5.1
-    # via connexion
-isodate==0.6.1
-    # via openapi-schema-validator
-itsdangerous==2.0.1
-    # via flask
-jinja2==3.0.3
-    # via
-    #   flask
-    #   swagger-ui-bundle
-jsonschema==3.2.0
-    # via
-    #   connexion
-    #   openapi-schema-validator
-    #   openapi-spec-validator
-markupsafe==2.0.1
-    # via jinja2
 numpy==1.22.2
     # via pandas
-oauthlib==3.1.1
+oauthlib==3.2.0
     # via requests-oauthlib
-openapi-schema-validator==0.1.6
-    # via openapi-spec-validator
-openapi-spec-validator==0.3.3
-    # via connexion
-pandas==1.4.0
+pandas==1.4.1
     # via -r requirements.in
-protobuf==3.19.3
+protobuf==3.19.4
     # via
     #   google-api-core
     #   googleapis-common-protos
@@ -87,26 +56,16 @@ pycodestyle==2.8.0
     # via -r requirements.in
 pyparsing==3.0.7
     # via httplib2
-pyrsistent==0.16.1
-    # via
-    #   jsonschema
-    #   openapi-spec-validator
 python-dateutil==2.8.2
     # via pandas
 pytz==2021.3
     # via pandas
-pyyaml==5.4.1
-    # via
-    #   clickclick
-    #   connexion
-    #   openapi-spec-validator
 requests==2.27.1
     # via
     #   -r requirements.in
-    #   connexion
     #   google-api-core
     #   requests-oauthlib
-requests-oauthlib==1.3.0
+requests-oauthlib==1.3.1
     # via google-auth-oauthlib
 rsa==4.8
     # via google-auth
@@ -114,21 +73,12 @@ six==1.16.0
     # via
     #   google-auth
     #   google-auth-httplib2
-    #   jsonschema
-    #   openapi-schema-validator
-    #   openapi-spec-validator
-    #   pyrsistent
     #   python-dateutil
-swagger-ui-bundle==0.0.9
-    # via connexion
+sqlparse==0.4.2
+    # via django
+tzdata==2021.5
+    # via django
 uritemplate==4.1.1
     # via google-api-python-client
 urllib3==1.26.8
     # via requests
-werkzeug==2.0.3
-    # via
-    #   connexion
-    #   flask
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
