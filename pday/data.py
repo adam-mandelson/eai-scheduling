@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Callable
 
-from pday.utils import json_to_listview
+from utils import json_to_listview
 
 
 class Data(object):
