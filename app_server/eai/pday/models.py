@@ -6,4 +6,3 @@ class Report(models.Model):
     month = models.CharField(max_length=50, blank=False, null=False)
     dataTypes = models.CharField(max_lengh=50, blank=False, null=False)
     value = models.IntegerField()
-    

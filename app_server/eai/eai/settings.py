@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'pday.apps.PdayConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,9 +77,9 @@ WSGI_APPLICATION = 'eai.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pday',
-        'USER': 'eai_pday',
-        'PASSWORD': 'eai_pday',
+        'NAME': 'eai',
+        'USER': 'eai',
+        'PASSWORD': 'eai',
         'HOST': 'localhost',
         'PORT': '5432',
     }
