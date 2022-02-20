@@ -5,8 +5,7 @@
 *.txt
 !requirements.txt
 .vscode/
-*.md
-!README.md
+TODO.md
 *.csv
 
 # Data files
@@ -19,3 +18,4 @@ __pycache__
 
 # Config files
 config/
+.Rproj.user
