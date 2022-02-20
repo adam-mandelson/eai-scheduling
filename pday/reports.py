@@ -1,29 +1,43 @@
+'''
+Creates a ReportsQuery object that cleans 
+'''
+
 from datetime import datetime as dt
+from pathlib import Path
 from typing import Dict
 
 import numpy as np
 import pandas as pd
 
+from pday.data import Data
+from pday.query import PDayQuery
+from pday.update import PDayUpdate
+from pday.utils import auth_dir, data_dir, reports_dir
+
+DATA_PATH = data_dir()
+REPORTS_DIR = reports_dir()
+
+pday_obj = PDayQuery(auth_dir=auth_dir())
+data_obj = Data()
+update_obj = PDayUpdate(pday_obj=pday_obj, data_obj=data_obj, data_dir=DATA_PATH)
+
 
 class ReportsQuery(object):
 
-    def __init__(self, df_dict: Dict, datestring: str = None,
-                 employeeName: str = None) -> None:
-        if datestring:
-            filter_start = dt.strptime(datestring, '%Y %m')
-            self._date_filters = [
-                filter_start,
-                filter_start + pd.DateOffset(months=1)
-            ]
-        else:
-            self._date_filters = [
+    def __init__(self, reports_dir: Path = None, employeeName: str = None) -> None:
+        self._reports_dir = reports_dir
+        self._date_filters = [
                 dt.strptime('2022', '%Y'),
                 dt.strptime('2023', '%Y')
             ]
-        self._clean_all_shifts(df=df_dict['all_shifts'])
-        self._clean_employees_list(df=df_dict['employees_list'])
-        self._clean_shift_types(df=df_dict['shift_types'])
-        self._clean_leave_accounts(df=df_dict['leave_accounts'])
+        _df_all_shifts = update_obj.get_all_shifts()
+        _df_employees_list = update_obj.get_employees()
+        _df_shift_types = update_obj.get_shift_types()
+        _df_leave_accounts = update_obj.get_leave_accounts()
+        self._clean_all_shifts(df=_df_all_shifts)
+        self._clean_employees_list(df=_df_employees_list)
+        self._clean_shift_types(df=_df_shift_types)
+        self._clean_leave_accounts(df=_df_leave_accounts)
         self._merge_datasets()
         if employeeName:
             self._employeeName = employeeName
@@ -232,26 +246,30 @@ class ReportsQuery(object):
         return self._report_df
 
     def _get_ytd_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        prev_month = dt.strftime(dt.now() - pd.DateOffset(months=1), '%B')
-        df = df.loc[:, 'January':prev_month]
-        df.loc[1:, ('ytd')] = df.loc[
-            ~df.index.isin(['employeeName']), :].sum(axis=1)
-        name_mask = self._leave_accounts['employeeName'] == df.loc[
-            'employeeName', 'January'
-            ]
-        df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc[
-            'hours_contracted', ~df.columns.isin(['ytd'])
-            ].sum()
-        df.loc[:, ('under/over')] = df.loc[
-            'hours_worked':'hours_counted', 'ytd'
-            ] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
-        df.loc['annual_leave', 'full_year_contracted'] = self._leave_accounts.loc[name_mask, 'balance'].values[0]
-        work_days = (52*5) - 12 - df.loc['annual_leave', 'full_year_contracted']
-        work_hours = work_days * 8
-        df.loc['sick_leave', 'full_year_contracted'] = 10
-        df.loc['shifts_worked':'shifts_counted', 'full_year_contracted'] = work_days
-        df.loc['hours_worked':'hours_counted', 'full_year_contracted'] = work_hours
-        return df.iloc[:, -4:]
+        try:
+            prev_month = dt.strftime(dt.now() - pd.DateOffset(months=1), '%B')
+            df = df.loc[:, 'January':prev_month]
+            df.loc[1:, ('ytd')] = df.loc[
+                ~df.index.isin(['employeeName']), :].sum(axis=1)
+            name_mask = self._leave_accounts['employeeName'] == df.loc[
+                'employeeName', 'January'
+                ]
+            df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc[
+                'hours_contracted', ~df.columns.isin(['ytd'])
+                ].sum()
+            df.loc[:, ('under/over')] = df.loc[
+                'hours_worked':'hours_counted', 'ytd'
+                ] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
+            df.loc['annual_leave', 'full_year_contracted'] = self._leave_accounts.loc[name_mask, 'balance'].values[0]
+            work_days = (52*5) - 12 - df.loc['annual_leave', 'full_year_contracted']
+            work_hours = work_days * 8
+            df.loc['sick_leave', 'full_year_contracted'] = 10
+            df.loc['shifts_worked':'shifts_counted', 'full_year_contracted'] = work_days
+            df.loc['hours_worked':'hours_counted', 'full_year_contracted'] = work_hours
+            return df.iloc[:, -4:]
+        except IndexError as err:
+            print(err)
+            pass
 
     def _filter_monthly(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df[
@@ -260,9 +278,21 @@ class ReportsQuery(object):
             ]
         return self.export_data(df)
 
-    def monthly_report(self):
+    def _multindex(self, df: pd.DataFrame) -> pd.DataFrame:
+        name = pd.Series(df.loc['employeeName', 'January']).repeat(7).reset_index(drop=True)
+        old_idx = df.index.values[1:-1]
+        tuples = list(zip(name, old_idx))
+        idx = pd.MultiIndex.from_tuples(tuples, names=['employeeName', 'data_types'])
+        df = df.iloc[1:-1, :]
+        df.set_index(idx, inplace=True)
+        return df
+
+    def get_monthly_report(self, only_full_report=False, no_save=False) -> Dict:
         names_list = self._report_df['employeeName'].values.tolist()
+        # TODO: Temporary
+        names_list = names_list[:-1]
         df_dict = {}
+        full_df = pd.DataFrame()
         for name in names_list:
             print(f'\n+++ Working on {name}\'s report +++')
             df = self._merged_dataset
@@ -289,6 +319,37 @@ class ReportsQuery(object):
             employee_df.fillna(0, inplace=True)
             ytd_df = self._get_ytd_data(employee_df)
             employee_df = employee_df.join(ytd_df)
-            df_dict[name] = employee_df
+            # Add index level
+            employee_df = self._multindex(employee_df)
+            full_df = pd.concat([full_df, employee_df])
+            df_dict[name] = employee_df.iloc[:-1, :]
             df_dict[name].fillna(0, inplace=True)
+        if only_full_report & no_save:
+            return full_df
+        self._monthly_dict = df_dict
+        if only_full_report:
+            if no_save:
+                return self._save_full_report(no_save=no_save)
+        else:
+            for name in df_dict.keys():
+                self._save_indiv_report(name)
+            self._save_full_report(no_save=no_save)
         return df_dict
+
+    def _save_indiv_report(self, name: str) -> None:
+        file_path = name.replace(' ', '_').lower() + '.csv'
+        df = self._monthly_dict[name].iloc[1:, :]
+        with open(self._reports_dir / file_path) as f:
+            df.to_csv(f, line_terminator='\n')
+
+    def _save_full_report(self, no_save=False):
+        if no_save:
+            df_dict = self._monthly_dict
+            df = pd.DataFrame(columns=df_dict['Adam Mandelson'].columns)
+            for name in df_dict.keys():
+                df = df.append(df_dict[name])
+            return df
+        else:
+            with open(self._reports_dir / 'full_report.csv', 'w') as f:
+                df.to_csv(f, line_terminator='\n')
+            return df

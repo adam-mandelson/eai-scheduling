@@ -2,13 +2,24 @@
 .env
 *.code-workspace
 *.yaml
+*.txt
+!requirements.txt
+.vscode/
+TODO.md
+*.csv
 
 # Data files
 data/
 *.json
+*.pkl
 
 # Python files
 __pycache__
 
+# Rstudio files
+*.Rproj
+*.Rhistory
+
 # Config files
 config/
+.Rproj.user

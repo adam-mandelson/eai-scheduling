@@ -1,7 +1,9 @@
+'''
+Utility functions.
+'''
+
 import os
 from pathlib import Path
-
-import pandas as pd
 
 
 def auth_dir() -> Path:
@@ -18,7 +20,7 @@ def data_dir() -> Path:
     '''
     if not os.path.exists('./data/'):
         os.makedirs('./data/')
-    return Path('data/')
+    return Path('./data/')
 
 
 def reports_dir() -> Path:
@@ -26,9 +28,9 @@ def reports_dir() -> Path:
     Returns a Path object with the location of the reports folder.
     Makes a new one if it doesn't exist.
     '''
-    if not os.path.exists('./reports/data/'):
-        os.makedirs('./reports/data/')
-    return Path('reports/data/')
+    if not os.path.exists('.reports/data/'):
+        os.makedirs('.reports/data/')
+    return Path('.reports/data/')
 
 
 def json_to_listview(json_data, keys):
