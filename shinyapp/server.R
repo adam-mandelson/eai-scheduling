@@ -67,7 +67,7 @@ server <- function(input, output, session) {
   #   )
   # })
   
-  # PLANDAY REPORTS - BOX5 ---------------------------------------------------------------
+  # PDay REPORTS - BOX5 ---------------------------------------------------------------
   # Download button
   output$pday.box5.download_button <- renderUI({
     shiny::validate(
@@ -136,7 +136,7 @@ server <- function(input, output, session) {
     }
   )
   
-  # PLANDAY REPORTS - BOX6 ---------------------------------------------------------------
+  # PDay REPORTS - BOX6 ---------------------------------------------------------------
   # Download button
   output$pday.box6.download_button <- renderUI({
     shiny::validate(

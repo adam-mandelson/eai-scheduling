@@ -1,3 +1,7 @@
+'''
+Utility functions.
+'''
+
 import os
 from pathlib import Path
 
@@ -24,9 +28,9 @@ def reports_dir() -> Path:
     Returns a Path object with the location of the reports folder.
     Makes a new one if it doesn't exist.
     '''
-    if not os.path.exists('./flask-app/pday/reports/data/'):
-        os.makedirs('./flask-app/pday/reports/data/')
-    return Path('./flask-app/pday/reports/data/')
+    if not os.path.exists('.reports/data/'):
+        os.makedirs('.reports/data/')
+    return Path('.reports/data/')
 
 
 def json_to_listview(json_data, keys):
