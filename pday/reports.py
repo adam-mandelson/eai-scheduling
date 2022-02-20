@@ -1,43 +1,35 @@
-from configparser import NoSectionError
+'''
+Creates a ReportsQuery object that cleans 
+'''
+
 from datetime import datetime as dt
-from typing import Dict
 from pathlib import Path
+from typing import Dict
 
 import numpy as np
 import pandas as pd
-from pday.utils import data_dir, reports_dir, auth_dir
-import argparse
-from pday.update import PlandayUpdate
 
-from pday.query import PlandayQuery
 from pday.data import Data
+from pday.query import PDayQuery
+from pday.update import PDayUpdate
+from pday.utils import auth_dir, data_dir, reports_dir
 
 DATA_PATH = data_dir()
 REPORTS_DIR = reports_dir()
 
-planday_obj = PlandayQuery(auth_dir=auth_dir())
+pday_obj = PDayQuery(auth_dir=auth_dir())
 data_obj = Data()
-update_obj = PlandayUpdate(planday_obj=planday_obj, data_obj=data_obj, data_dir=DATA_PATH)
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description='This module generates monthly reports, '
-                    'or an entire yearly report.',
-        epilog='Outputs a python dictionary at the moment.')
-    current_year_month = dt.strftime(dt.today(), '%Y %m')
-    parser.add_argument('-id', '--input_date', type=str,
-                        nargs='?',
-                        help='the date to produce the report '
-                        'for. please enter as "YYYY mm".')
-    return parser.parse_args()
+update_obj = PDayUpdate(pday_obj=pday_obj, data_obj=data_obj, data_dir=DATA_PATH)
 
 
 class ReportsQuery(object):
 
-    def __init__(self, reports_dir: Path = None, datestring: str = None, employeeName: str = None) -> None:
+    def __init__(self, reports_dir: Path = None, employeeName: str = None) -> None:
         self._reports_dir = reports_dir
-        self._check_datestring(datestring)
+        self._date_filters = [
+                dt.strptime('2022', '%Y'),
+                dt.strptime('2023', '%Y')
+            ]
         _df_all_shifts = update_obj.get_all_shifts()
         _df_employees_list = update_obj.get_employees()
         _df_shift_types = update_obj.get_shift_types()
@@ -55,19 +47,6 @@ class ReportsQuery(object):
         else:
             self._employeeName = None
         self._report_df = pd.DataFrame(self._employees_list['employeeName'])
-
-    def _check_datestring(self, date_str: str = None) -> None:
-        if date_str:
-            filter_start = dt.strptime(date_str, '%Y %m')
-            self._date_filters = [
-                filter_start,
-                filter_start + pd.DateOffset(months=1)
-            ]
-        else:
-            self._date_filters = [
-                dt.strptime('2022', '%Y'),
-                dt.strptime('2023', '%Y')
-            ]
 
     def _clean_all_shifts(self, df: pd.DataFrame) -> None:
         if df['date'].dtypes.name != 'datetime64[ns]':
@@ -267,26 +246,30 @@ class ReportsQuery(object):
         return self._report_df
 
     def _get_ytd_data(self, df: pd.DataFrame) -> pd.DataFrame:
-        prev_month = dt.strftime(dt.now() - pd.DateOffset(months=1), '%B')
-        df = df.loc[:, 'January':prev_month]
-        df.loc[1:, ('ytd')] = df.loc[
-            ~df.index.isin(['employeeName']), :].sum(axis=1)
-        name_mask = self._leave_accounts['employeeName'] == df.loc[
-            'employeeName', 'January'
-            ]
-        df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc[
-            'hours_contracted', ~df.columns.isin(['ytd'])
-            ].sum()
-        df.loc[:, ('under/over')] = df.loc[
-            'hours_worked':'hours_counted', 'ytd'
-            ] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
-        df.loc['annual_leave', 'full_year_contracted'] = self._leave_accounts.loc[name_mask, 'balance'].values[0]
-        work_days = (52*5) - 12 - df.loc['annual_leave', 'full_year_contracted']
-        work_hours = work_days * 8
-        df.loc['sick_leave', 'full_year_contracted'] = 10
-        df.loc['shifts_worked':'shifts_counted', 'full_year_contracted'] = work_days
-        df.loc['hours_worked':'hours_counted', 'full_year_contracted'] = work_hours
-        return df.iloc[:, -4:]
+        try:
+            prev_month = dt.strftime(dt.now() - pd.DateOffset(months=1), '%B')
+            df = df.loc[:, 'January':prev_month]
+            df.loc[1:, ('ytd')] = df.loc[
+                ~df.index.isin(['employeeName']), :].sum(axis=1)
+            name_mask = self._leave_accounts['employeeName'] == df.loc[
+                'employeeName', 'January'
+                ]
+            df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc[
+                'hours_contracted', ~df.columns.isin(['ytd'])
+                ].sum()
+            df.loc[:, ('under/over')] = df.loc[
+                'hours_worked':'hours_counted', 'ytd'
+                ] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
+            df.loc['annual_leave', 'full_year_contracted'] = self._leave_accounts.loc[name_mask, 'balance'].values[0]
+            work_days = (52*5) - 12 - df.loc['annual_leave', 'full_year_contracted']
+            work_hours = work_days * 8
+            df.loc['sick_leave', 'full_year_contracted'] = 10
+            df.loc['shifts_worked':'shifts_counted', 'full_year_contracted'] = work_days
+            df.loc['hours_worked':'hours_counted', 'full_year_contracted'] = work_hours
+            return df.iloc[:, -4:]
+        except IndexError as err:
+            print(err)
+            pass
 
     def _filter_monthly(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df[
@@ -306,6 +289,8 @@ class ReportsQuery(object):
 
     def get_monthly_report(self, only_full_report=False, no_save=False) -> Dict:
         names_list = self._report_df['employeeName'].values.tolist()
+        # TODO: Temporary
+        names_list = names_list[:-1]
         df_dict = {}
         full_df = pd.DataFrame()
         for name in names_list:
@@ -368,10 +353,3 @@ class ReportsQuery(object):
             with open(self._reports_dir / 'full_report.csv', 'w') as f:
                 df.to_csv(f, line_terminator='\n')
             return df
-
-
-if __name__ == '__main__':
-    args = parse_args()
-    query_obj = ReportsQuery(reports_dir=REPORTS_DIR)
-    # Get monthly report for all employees
-    query_obj.monthly_report(only_full_report=True)

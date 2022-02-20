@@ -80,7 +80,7 @@ class SheetsClient(object):
             },
             valueInputOption="USER_ENTERED"
         ).execute()
-        print(f'\nAdded record to logs at {value_[0][1]}')
+        print(f'\nAdded a log noting access at {value_[0][1]}')
 
     def append(self, range: str, values) -> None:
         '''
@@ -104,8 +104,8 @@ class SheetsClient(object):
             },
             valueInputOption="USER_ENTERED"
         ).execute()
-        self._log(f'Appended values at {range}')
-        print(f'Appended values at {range}')
+        self._log(f'Appended values to {range}')
+        print(f'Appended values to {range}')
 
     def update(self, range: str, values) -> None:
         '''

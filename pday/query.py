@@ -11,14 +11,14 @@ from typing import List
 from requests import Response, Session
 
 
-class PlandayQuery(object):
+class PDayQuery(object):
 
     def __init__(self, auth_dir: Path) -> None:
         '''
         Instantiate query object for running queries.
         Authenticates and prints a response status code.
 
-        :param auth_dir: location of token.json (with Planday client_id and
+        :param auth_dir: location of token.json (with pday client_id and
                          refresh_token) and access_token.json (generated
                          by handshake)
         '''
@@ -38,7 +38,7 @@ class PlandayQuery(object):
             self._token_url = auth_info['token_url']
             self._test_url = auth_info['test_url']
             self._params = auth_info['params']
-            self._planday_client_id = auth_info['params']['client_id']
+            self._pday_client_id = auth_info['params']['client_id']
 
         # POST call for access token
         self._new_token = self._session.post(
@@ -61,7 +61,7 @@ class PlandayQuery(object):
         self._access_token = self._new_token['access_token']
         self._access_headers = {
             'Authorization': 'Bearer ' + self._new_token['access_token'],
-            'X-ClientId': self._planday_client_id
+            'X-ClientId': self._pday_client_id
         }
 
     def _check_response(self) -> None:
@@ -75,7 +75,7 @@ class PlandayQuery(object):
         if test_response.status_code != 200:
             print('There was an authentication problem')
         else:
-            print('PlandayClient: Authentication okay.')
+            print('PDay: Authentication okay.')
 
     def get_response(self, url: str, params=None) -> Response:
         response = self._session.get(
