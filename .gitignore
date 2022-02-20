@@ -16,6 +16,10 @@ data/
 # Python files
 __pycache__
 
+# Rstudio files
+*.Rproj
+*.Rhistory
+
 # Config files
 config/
 .Rproj.user
