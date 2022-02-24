@@ -7,3 +7,4 @@
     </ul>
 </ul>
 <p>See the Releases tab for more information</p>
+<p><b>Data last updated at: </p></b>

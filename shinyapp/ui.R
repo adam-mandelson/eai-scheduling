@@ -73,7 +73,15 @@ ui <- fluidPage(
         # MAIN PAGE ---------------------------------------------------------------
         tabItem(
           tabName = 'main_page',
-          includeMarkdown('static/www/home.md')
+          includeMarkdown('static/www/home.md'),
+          uiOutput('pday.last_update'),
+          br(),
+          actionButton(
+            'pday.data_update.button',
+            'Refresh data',
+            icon = icon('sync'),
+            class = 'butt'
+          ),
           # Future versions will feature a 4-box dashboard.
           # fluid_design('main_page_panel', 'box1', 'box2', 'box3', 'box4')
         ),

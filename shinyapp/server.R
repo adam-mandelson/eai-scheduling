@@ -14,6 +14,13 @@
 server <- function(input, output, session) {
   
   # TODO: MAIN PAGE BOXES IN FUTURE VERSIONS
+  
+  # MAIN PAGE ---------------------------------------------------------------
+  filePath <- '../pday/last_update.txt'
+  lastUpdate <- reactiveFileReader(1000, session, filePath, readLines)
+  output$pday.last_update <- renderText({
+    lastUpdate()
+  })
 
   # MAIN PAGE  - BOX1 ---------------------------------------------------------------
   # output$box1 <- renderUI({
@@ -204,4 +211,14 @@ server <- function(input, output, session) {
       write.csv(data.frame(box6.df_reports()[[1]]), file, row.names = FALSE)
     }
   )
+  
+  # PDAY.UPDATE_DATA ---------------------------------------------------------------
+  observeEvent(input$pday.data_update.button, {
+    setwd('../')
+    use_virtualenv('./.env')
+    py_run_file('./pday/update_all.py', convert=FALSE)
+    shinyalert::shinyalert(title='Data updated', type='success')
+    setwd('./shinyapp')
+  })
+  
 }

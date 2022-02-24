@@ -18,5 +18,6 @@ PDayUpdate(
     data_dir=data_dir()
     ).update_all()
 
-with open('last_update.txt', 'w') as f:
+with open('./pday/last_update.txt', 'w') as f:
     f.write(strftime('%d %b %Y %H:%M +0000', gmtime()))
+    f.close()

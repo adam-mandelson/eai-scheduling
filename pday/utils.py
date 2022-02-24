@@ -10,7 +10,7 @@ def auth_dir() -> Path:
     '''
     Returns a Path object with the location of the config folder.
     '''
-    return Path('config/')
+    return Path('./config/')
 
 
 def data_dir() -> Path:
