@@ -4,10 +4,10 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 <div align="center">
-<h3 align="center">roster backup</h3>
+<h3 align="center">Roster Data</h3>
 
   <p align="center">
-    Simple script to backup schedule data.
+    An internal Shiny App that displays and backs up scheduling data.
     <br />
   </p>
 </div>
@@ -17,12 +17,9 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about">About</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#about-the-project">About the Project</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
@@ -30,16 +27,23 @@
 </details>
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## About the Project
 
-A simple script to backup schedule data. For more instructions, go to the relevant google document.
+A simple Shiny App to backup, display and report schedule data accessed from API calls.
+
+![Visual of App](shinyapp/static/img/pday_vis.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!-- GETTING STARTED -->
-## Getting Started
+<!-- BUILT WITH -->
 
-Info here will show how to get this running locally if necessary.
+## Built With
+
+* [Python](https://www.python.org/)
+* [Shiny](https://shiny.rstudio.com/)
+* [PostgreSQL](https://www.postgresql.org/)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Prerequisites
 
@@ -49,9 +53,9 @@ Add info about getting API refresh token.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Finish README.md
-- [ ] Input instructions in Google Doc
-- [ ] Automate weekly checks
+- [ ] More functional dashboard.
+- [ ] Better reporting.
+- [ ] Automate weekly checks.
 
 See the [open issues](https://github.com/adam-mandelson/eai-scheduling/issues) for a full list of proposed features (and known issues).
 
