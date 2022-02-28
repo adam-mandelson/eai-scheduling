@@ -1,4 +1,4 @@
-<h2 style="text-align:left;">Updates</h1>
+<h2 style="text-align:left; text-transform:none; font-weight: bold; color: #416983">Updates</h2>
 <br>
 <p><b>Planned Improvements</b>
 <ul><b>2/20/22</b>
