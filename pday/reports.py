@@ -1,5 +1,5 @@
 '''
-Creates a ReportsQuery object that cleans 
+Creates a ReportsQuery object that cleans and aggregates data.
 '''
 
 from datetime import datetime as dt
@@ -289,8 +289,6 @@ class ReportsQuery(object):
 
     def get_monthly_report(self, only_full_report=False, no_save=False) -> Dict:
         names_list = self._report_df['employeeName'].values.tolist()
-        # TODO: Temporary
-        names_list = names_list[:-1]
         df_dict = {}
         full_df = pd.DataFrame()
         for name in names_list:
