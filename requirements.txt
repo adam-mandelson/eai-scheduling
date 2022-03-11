@@ -12,11 +12,11 @@ certifi==2021.10.8
     # via requests
 charset-normalizer==2.0.12
     # via requests
-django==4.0.2
+django==4.0.3
     # via -r requirements.in
-google-api-core==2.5.0
+google-api-core==2.7.1
     # via google-api-python-client
-google-api-python-client==2.37.0
+google-api-python-client==2.40.0
     # via -r requirements.in
 google-auth==2.6.0
     # via
@@ -26,9 +26,9 @@ google-auth==2.6.0
     #   google-auth-oauthlib
 google-auth-httplib2==0.1.0
     # via google-api-python-client
-google-auth-oauthlib==0.4.6
+google-auth-oauthlib==0.5.0
     # via -r requirements.in
-googleapis-common-protos==1.54.0
+googleapis-common-protos==1.55.0
     # via google-api-core
 httplib2==0.20.4
     # via
@@ -36,7 +36,7 @@ httplib2==0.20.4
     #   google-auth-httplib2
 idna==3.3
     # via requests
-numpy==1.22.2
+numpy==1.22.3
     # via pandas
 oauthlib==3.2.0
     # via requests-oauthlib

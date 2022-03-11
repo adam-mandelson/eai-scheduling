@@ -76,7 +76,7 @@ class PDayUpdate(object):
 
         :param update_sheets: True if Google Sheets should be updated.
         :returns: A Pandas DataFrame
-        '''        
+        '''
         _file_name = 'absence_requests.json'
         query = self._pday_obj.get_absence_requests
         self._data_obj.save_to_json(
@@ -255,7 +255,7 @@ class PDayUpdate(object):
         A function to update all data and save locally.
 
         :param update_sheets: True if Google Sheets should be updated.
-        '''        
+        '''
         self.get_absence_accounts(update_sheets=update_sheets)
         self.get_absence_requests(update_sheets=update_sheets)
         self.get_account_types(update_sheets=update_sheets)
