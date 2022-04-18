@@ -6,7 +6,7 @@ from pday.config import config, psycopg2_exception
 import json
 
 
-def connect(table: str = 'pday_reports', sql: str = None, data=None, has_json=False) -> None:
+def connect(table: str = 'pday', sql: str = None, data=None, has_json=False) -> None:
     conn = None
     try:
         params = config('database.ini')

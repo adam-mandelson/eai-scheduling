@@ -1,7 +1,7 @@
 ###########################################################
 #
 # Script: data_import.R
-# Date: Thu Feb 17 15:15:16 2022
+# Date: Mon Apr 18 15:15:16 2022
 #
 # Purpose:
 #  - Load data from the database
@@ -13,8 +13,9 @@
 config <- read.ini('../config/database.ini')
 
 con <- dbConnect(RPostgres::Postgres(),
-                 dbname = config$postgresql$database,
                  host = config$postgresql$host,
+                 port = config$postgresql$port,
+                 dbname = config$postgresql$database,
                  user = config$postgresql$user,
                  password = config$postgresql$password)
 
