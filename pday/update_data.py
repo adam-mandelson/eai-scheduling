@@ -26,7 +26,7 @@ with open('./pday/last_update.txt', 'w') as f:
     f.close()
 
 # Update database
-df = ReportsQuery().get_monthly_report(no_save=True, only_full_report=True)
+df = ReportsQuery().get_monthly_report()
 # pd.to_pickle(df, 'temp.pkl')
 # df = pd.read_pickle('temp.pkl')
 DBUpdate(data=df, db_connect=connect).add_reports()
