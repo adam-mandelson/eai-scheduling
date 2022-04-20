@@ -1,7 +1,7 @@
 ###########################################################
 #
 # Script: data_import.R
-# Date: Thu Feb 17 15:15:16 2022
+# Date: Mon Apr 18 15:15:16 2022
 #
 # Purpose:
 #  - Load data from the database
@@ -13,8 +13,9 @@
 config <- read.ini('../config/database.ini')
 
 con <- dbConnect(RPostgres::Postgres(),
-                 dbname = config$postgresql$database,
                  host = config$postgresql$host,
+                 port = config$postgresql$port,
+                 dbname = config$postgresql$database,
                  user = config$postgresql$user,
                  password = config$postgresql$password)
 
@@ -33,7 +34,7 @@ dbClearResult(res_employees_list)
 dbDisconnect(con)
 
 # DATA HELPER FUNCTIONS ---------------------------------------------------------------
-# Add employeename field
+# Add employeename field to df_employees
 df_employees <- df_employees %>%
   mutate(employeename = str_c(firstname, " ", lastname))
 
@@ -55,8 +56,4 @@ df_reports <- df_reports %>%
          Sep = September,
          Oct = October,
          Nov = November,
-         Dec = December,
-         YTD = ytd,
-         Expected_YTD = ytd_contracted,
-         `Under/Over` = `under/over`,
-         Expected_Full_Year = full_year_contracted)
+         Dec = December)

@@ -9,3 +9,5 @@
 </p>
 <p><b>Bugs / fixes</b>
 </p>
+<br>
+<p>More details available at <a href="https://github.com/adam-mandelson/eai-scheduling" target="_blank">github.com/adam-mandelson/eai-scheduling</a></p>

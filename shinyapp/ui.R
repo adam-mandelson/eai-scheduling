@@ -194,12 +194,73 @@ ui <- fluidPage(
                   onInitialize = I('function() { this.setValue(""); }')
                 )
               )
+            ),
+            column(
+              width=3,
+              conditionalPanel(
+                condition = "output.pday_select_person != ''",
+                tags$div(
+                  selectizeInput(
+                    inputId = 'select.pday_month',
+                    label = 'Select a month to highlight:',
+                    choices = c(Choose = NULL,
+                                c('January',
+                                  'February',
+                                  'March',
+                                  'April',
+                                  'May',
+                                  'June',
+                                  'July',
+                                  'August',
+                                  'September',
+                                  'October',
+                                  'November',
+                                  'December')
+                    ),
+                    multiple=FALSE,
+                    options = list(
+                      placeholder='Choose a month',
+                      onInitialize = I('function() { this.setValue(""); }')
+                    )
+                  )
+                )
+              ),
             )
           ),
           fluidRow(
             column(
               width=12,
               uiOutput('pday.box6.ytd_message')
+            )
+          ),
+          fluidRow(
+            column(
+              width=12,
+              uiOutput('pday.box6.curr_month')
+            )
+          ),
+          fluidRow(
+            column(
+              width=12,
+              div(
+                id='pday.box6.vbox1',
+                visual_box_design_diff(
+                  'pday.box6.boxes_curr_diff',
+                  'box01', 'box02'
+                )
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              width=12,
+              div(
+                id='pday.box6.vbox2',
+                visual_box_design_full(
+                  'pday.box6.boxes',
+                  'box03', 'box04', 'box05', 'box06'
+                )
+              )
             )
           ),
           fluidRow(
