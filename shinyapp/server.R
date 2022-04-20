@@ -154,6 +154,17 @@ server <- function(input, output, session) {
                    class="butt")
   })
   
+  
+  output$pday_select_person <- reactive({
+    input$select.pday_person
+  })
+  
+  outputOptions(output, 'pday_select_person', suspendWhenHidden = FALSE)
+  
+  output$pday_select_month <- reactive({
+    input$select.pday_month
+  })
+  
   # YTD_MESSAGE
   output$pday.box6.ytd_message <- renderUI({
     shiny::validate(
@@ -177,6 +188,85 @@ server <- function(input, output, session) {
       f_employee_name = input$select.pday_person
     )
   })
+  
+  current_month <- month(Sys.Date(), label=TRUE, abbr=FALSE)
+  
+  # Valueboxes for current month
+  output$pday.box6.curr_month <- renderUI({
+    shiny::validate(
+      need(input$select.pday_month, message = FALSE)
+    )
+    tags$h3(input$select.pday_month)
+  })
+  
+  output$box01 <- renderValueBox({
+    shiny::validate(
+      need(input$select.pday_month, message=FALSE))
+    vbox_helper(person=input$select.pday_person,
+                category='Hours Counted',
+                data=box6.df_reports()[[2]],
+                box_icon='plus',
+                chosen_month=input$select.pday_month,
+                diff=TRUE
+    )
+  })
+  
+  output$box02 <- renderValueBox({
+    shiny::validate(
+      need(input$select.pday_month, message=FALSE))
+    vbox_helper(person=input$select.pday_person,
+                category='Shifts Worked',
+                data=box6.df_reports()[[2]],
+                box_icon='plus',
+                chosen_month=input$select.pday_month,
+                diff=TRUE
+    )
+  })
+  
+  output$box03 <- renderValueBox({
+    shiny::validate(
+      need(input$select.pday_month, message=FALSE))
+    vbox_helper(person=input$select.pday_person,
+                category='Hours Worked',
+                data=box6.df_reports()[[2]],
+                box_icon='clock',
+                chosen_month=input$select.pday_month
+    )
+  })
+  
+  output$box04 <- renderValueBox({
+    shiny::validate(
+      need(input$select.pday_month, message=FALSE))
+    vbox_helper(person=input$select.pday_person,
+                category='Hours Counted',
+                data=box6.df_reports()[[2]],
+                box_icon='clock',
+                chosen_month=input$select.pday_month
+    )
+  })
+  
+  output$box05 <- renderValueBox({
+    shiny::validate(
+      need(input$select.pday_month, message=FALSE))
+    vbox_helper(person=input$select.pday_person,
+                category='Leave Used',
+                data=box6.df_reports()[[2]],
+                box_icon='calendar',
+                chosen_month=input$select.pday_month
+    )
+  })
+  
+  output$box06 <- renderValueBox({
+    shiny::validate(
+      need(input$select.pday_month, message=FALSE))
+    vbox_helper(person=input$select.pday_person,
+                category='Shifts Worked',
+                data=box6.df_reports()[[2]],
+                box_icon='calendar',
+                chosen_month=input$select.pday_month
+    )
+  })
+  
   
   # Datatable
   output$box6_reports_datatable <- DT::renderDataTable({
@@ -216,7 +306,7 @@ server <- function(input, output, session) {
   observeEvent(input$pday.data_update.button, {
     setwd('../')
     use_virtualenv('./.env')
-    py_run_file('./pday/update_all.py', convert=FALSE)
+    py_run_file('./pday/update_data.py', convert=FALSE)
     shinyalert::shinyalert(title='Data updated', type='success')
     setwd('./shinyapp')
   })

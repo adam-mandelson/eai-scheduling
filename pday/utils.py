@@ -23,16 +23,6 @@ def data_dir() -> Path:
     return Path('./data/')
 
 
-def reports_dir() -> Path:
-    '''
-    Returns a Path object with the location of the reports folder.
-    Makes a new one if it doesn't exist.
-    '''
-    if not os.path.exists('.reports/data/'):
-        os.makedirs('.reports/data/')
-    return Path('.reports/data/')
-
-
 def json_to_listview(json_data, keys):
     '''
     Changes json object to array (ListView format) for google sheets entry.
