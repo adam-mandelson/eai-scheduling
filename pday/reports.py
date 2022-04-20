@@ -109,6 +109,12 @@ class ReportsQuery(object):
         self._merge_reports(df)
         # TODO: Compare these numbers against shifts
 
+    def get_parental_leave_used(self, df: pd.DataFrame):
+        df = df[df['shiftTypeName'] == 'Parental Leave']
+        df = df.groupby(['employeeName']).count()['id']
+        df = df.rename('parental_leave')
+        self._merge_reports(df)
+
     def get_hours_worked(self, df: pd.DataFrame):
         df = df[
             (df['shiftTypeName'] != 'HOLIDAY') &
@@ -142,10 +148,11 @@ class ReportsQuery(object):
         df = df.rename('shifts_worked')
         self._merge_reports(df)
 
-    def get_shifts_counted(self, df: pd.DataFrame):
-        df = df.groupby(['employeeName']).count()['id']
-        df = df.rename('shifts_counted')
-        self._merge_reports(df)
+    # TODO: Is shifts counted necessary?
+    # def get_shifts_counted(self, df: pd.DataFrame):
+    #     df = df.groupby(['employeeName']).count()['id']
+    #     df = df.rename('shifts_counted')
+    #     self._merge_reports(df)
 
     def get_shifts_wfh(self, df: pd.DataFrame):
         df = df[df['shiftTypeName'].str.contains('WFH', na=False)]
@@ -158,10 +165,11 @@ class ReportsQuery(object):
         self._report_df = self._full_df.loc[self._full_df['employeeName'] == employeeName]
         self.get_sick_days(df=monthly_data)
         self.get_annual_leave_used(df=monthly_data)
+        self.get_parental_leave_used(df=monthly_data)
         self.get_hours_worked(df=monthly_data)
         self.get_hours_counted(df=monthly_data)
         self.get_shifts_worked(df=monthly_data)
-        self.get_shifts_counted(df=monthly_data)
+        # self.get_shifts_counted(df=monthly_data)
         self.get_shifts_wfh(df=monthly_data)
         return self._report_df
 
@@ -179,7 +187,7 @@ class ReportsQuery(object):
         full_df = pd.DataFrame()
         for name in names_list:
             df = self._merged_dataset
-            df = df.loc[df['employeeName']==name]
+            df = df.loc[df['employeeName'] == name]
             employee_df = pd.DataFrame(columns=[
                 'January', 'February', 'March', 'April', 'May', 'June', 'July',
                 'August', 'September', 'October', 'November', 'December'
@@ -189,7 +197,7 @@ class ReportsQuery(object):
                 start = dt.strptime(str(dt.now().year) + ' ' + month, '%Y %B')
                 end = start + pd.DateOffset(months=1)
                 monthly_df = df[(df['date'] >= start) &
-                              (df['date'] < end)]
+                                (df['date'] < end)]
 
                 busdays = np.busday_count(dt.strftime(start, '%Y-%m'), (dt.strftime(end, '%Y-%m')))
                 # Get data
@@ -197,10 +205,11 @@ class ReportsQuery(object):
                     employee_df.loc['employeeName', month] = name
                     employee_df.loc['sick_leave', month] = 0
                     employee_df.loc['annual_leave', month] = 0
+                    employee_df.loc['parental_leave', month] = 0
                     employee_df.loc['hours_worked', month] = 0
                     employee_df.loc['hours_counted', month] = 0
                     employee_df.loc['shifts_worked', month] = 0
-                    employee_df.loc['shifts_counted', month] = 0
+                    # employee_df.loc['shifts_counted', month] = 0
                     employee_df.loc['shifts_wfh', month] = 0
                     employee_df.loc['hours_contracted', month] = busdays * 8
                 else:
@@ -219,91 +228,6 @@ class ReportsQuery(object):
             # Add index level
             employee_df = self._multindex(employee_df)
 
-
             # Combine with full_report
             full_df = pd.concat([full_df, employee_df])
         return full_df
-
-
-
-    #             except ValueError:
-    #                 employee_df.loc['employeeName', month] = name
-    #                 print('\n+++ WARNING +++')
-    #                 print(f'{name.split()[0]}\'s report for the month of '
-    #                       f'{month} is empty. Please check.')
-    #                 pass
-    #         employee_df.fillna(0, inplace=True)
-    #         ytd_df = self._get_ytd_data(employee_df)
-    #         employee_df = employee_df.join(ytd_df)
-    #         # Add index level
-    #         employee_df = self._multindex(employee_df)
-    #         full_df = pd.concat([full_df, employee_df])
-    #         df_dict[name] = employee_df.iloc[:-1, :]
-    #         df_dict[name].fillna(0, inplace=True)
-    #     if only_full_report & no_save:
-    #         return full_df
-    #     self._monthly_dict = df_dict
-    #     if only_full_report:
-    #         if no_save:
-    #             return self._save_full_report(no_save=no_save)
-    #     else:
-    #         for name in df_dict.keys():
-    #             self._save_indiv_report(name)
-    #         self._save_full_report(no_save=no_save)
-    #     return df_dict
-
-    # def _get_ytd_data(self, df: pd.DataFrame) -> pd.DataFrame:
-    #     try:
-    #         prev_month = dt.strftime(dt.now() - pd.DateOffset(months=1), '%B')
-    #         df = df.loc[:, 'January':prev_month]
-    #         df.loc[1:, ('ytd')] = df.loc[
-    #             ~df.index.isin(['employeeName']), :].sum(axis=1)
-    #         name_mask = self._leave_accounts['employeeName'] == df.loc[
-    #             'employeeName', 'January'
-    #             ]
-    #         df.loc['hours_worked':'hours_counted', 'ytd_contracted'] = df.loc[
-    #             'hours_contracted', ~df.columns.isin(['ytd'])
-    #             ].sum()
-    #         df.loc[:, ('under/over')] = df.loc[
-    #             'hours_worked':'hours_counted', 'ytd'
-    #             ] - df.loc['hours_worked':'hours_counted', 'ytd_contracted']
-    #         df.loc['annual_leave', 'full_year_contracted'] = self._leave_accounts.loc[name_mask, 'balance'].values[0]
-    #         work_days = (52*5) - 12 - df.loc['annual_leave', 'full_year_contracted']
-    #         work_hours = work_days * 8
-    #         df.loc['sick_leave', 'full_year_contracted'] = 10
-    #         df.loc['shifts_worked':'shifts_counted', 'full_year_contracted'] = work_days
-    #         df.loc['hours_worked':'hours_counted', 'full_year_contracted'] = work_hours
-    #         return df.iloc[:, -4:]
-    #     except IndexError as err:
-    #         print(err)
-    #         pass
-
-
-    # def _multindex(self, df: pd.DataFrame) -> pd.DataFrame:
-    #     name = pd.Series(df.loc['employeeName', 'January']).repeat(7).reset_index(drop=True)
-    #     old_idx = df.index.values[1:-1]
-    #     tuples = list(zip(name, old_idx))
-    #     idx = pd.MultiIndex.from_tuples(tuples, names=['employeeName', 'data_types'])
-    #     df = df.iloc[1:-1, :]
-    #     df.set_index(idx, inplace=True)
-    #     return df
-
-
-
-    # def _save_indiv_report(self, name: str) -> None:
-    #     file_path = name.replace(' ', '_').lower() + '.csv'
-    #     df = self._monthly_dict[name].iloc[1:, :]
-    #     with open(self._reports_dir / file_path) as f:
-    #         df.to_csv(f, line_terminator='\n')
-
-    # def _save_full_report(self, no_save=False):
-    #     if no_save:
-    #         df_dict = self._monthly_dict
-    #         df = pd.DataFrame(columns=df_dict['Adam Mandelson'].columns)
-    #         for name in df_dict.keys():
-    #             df = df.append(df_dict[name])
-    #         return df
-    #     else:
-    #         with open(self._reports_dir / 'full_report.csv', 'w') as f:
-    #             df.to_csv(f, line_terminator='\n')
-    #         return df
