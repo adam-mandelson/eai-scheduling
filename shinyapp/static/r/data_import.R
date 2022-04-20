@@ -34,7 +34,7 @@ dbClearResult(res_employees_list)
 dbDisconnect(con)
 
 # DATA HELPER FUNCTIONS ---------------------------------------------------------------
-# Add employeename field
+# Add employeename field to df_employees
 df_employees <- df_employees %>%
   mutate(employeename = str_c(firstname, " ", lastname))
 
@@ -56,8 +56,4 @@ df_reports <- df_reports %>%
          Sep = September,
          Oct = October,
          Nov = November,
-         Dec = December,
-         YTD = ytd,
-         Expected_YTD = ytd_contracted,
-         `Under/Over` = `under/over`,
-         Expected_Full_Year = full_year_contracted)
+         Dec = December)
